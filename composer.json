@@ -1,0 +1,5 @@
+{
+    "require": {
+        "hazardland/debug": "^1.0"
+    }
+}

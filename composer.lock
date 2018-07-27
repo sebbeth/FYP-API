@@ -1,0 +1,60 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "fac11b1eb97ff50f2dba17d43e4ba279",
+    "packages": [
+        {
+            "name": "hazardland/debug",
+            "version": "1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hazardland/debug.php.git",
+                "reference": "428ab312cb952020cc5ff8415201de52532ed3b9"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hazardland/debug.php/zipball/428ab312cb952020cc5ff8415201de52532ed3b9",
+                "reference": "428ab312cb952020cc5ff8415201de52532ed3b9",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.4.21"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "debug.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "hazardland",
+                    "email": "hazardland@gmail.com",
+                    "homepage": "http://hazardland.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "php variable debug",
+            "homepage": "http://github.com/hazardland/debug.php",
+            "keywords": [
+                "debug"
+            ],
+            "time": "2017-01-31T13:41:00+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": [],
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}
