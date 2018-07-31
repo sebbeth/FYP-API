@@ -2,21 +2,28 @@
 
 class ComparisonInterface {
 
-  // public $edible;
-  // public $color;
+   private $jobQueue;
 
-  /* function __construct($edible, $color="green")
+   function __construct()
    {
-       $this->edible = $edible;
-       $this->color = $color;
-   }*/
+       $this->jobQueue = new JobQueue();
+   }
 
 
    /*
+    input data schema:
 
+    {
+    ""
+    }
    */
+
+
    function createComparison($input) {
-     debug($input);
+     $id = $this->jobQueue->addToQueue($input['input_id'],$input['parameters']);
+     header('Content-Type: application/json');
+     echo "{'id':'$id',
+            'status':'queued'}";
      http_response_code(200);
    }
 
@@ -24,12 +31,19 @@ class ComparisonInterface {
 
    */
    function getResult($key) {
-
      header('Content-Type: application/json');
-
-     echo 'RESULT';
+      $results = query("SELECT * FROM Results WHERE input_id='$key'");
+     if (sizeof($results) == 0) {
+       echo "{'status':'not found'}";
+     } else {
+       echo "{'status':{$results['status']},
+          'data':{$results['data']}}";
+     }
      http_response_code(200);
    }
+
+
+
 
 
 
