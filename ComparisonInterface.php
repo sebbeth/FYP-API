@@ -32,7 +32,7 @@ class ComparisonInterface {
    */
    function getResult($key) {
      header('Content-Type: application/json');
-      $results = query("SELECT * FROM Results WHERE input_id='$key'");
+      $results = query("SELECT * FROM Results WHERE id='$key'");
      if (sizeof($results) == 0) {
        echo "{'status':'not found'}";
      } else {

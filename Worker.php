@@ -7,6 +7,7 @@ require_once 'HelperFunctions.php';
 
 
 function consumeJob() {
+  global $dbConnection;
 
   $job = query("SELECT * FROM JobQueue LIMIT 1");
   if (!isset($job)) {
@@ -14,10 +15,18 @@ function consumeJob() {
     return;
   }
 
-  echo 'doing ' .debug($job);
+  echo debug($job);
+  // Start of computation
+  query("INSERT INTO Results (id,input_id,status,data) VALUES ('{$job['id']}','{$job['input_id']}','PROCESSING','');");
 
 
-  //query("DELETE FROM JobQueue WHERE id='{$job['id']}'");
+  $resultData = $dbConnection->real_escape_string("{'result':'data'}");
+
+  // Upon completion
+  query("UPDATE Results SET status='DONE', data='$resultData' WHERE id='{$job['id']}';");
+
+  // Drop the Job from the job queue.
+  query("DELETE FROM JobQueue WHERE id='{$job['id']}'");
 }
 
 
