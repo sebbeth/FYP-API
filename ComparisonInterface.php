@@ -22,8 +22,12 @@ class ComparisonInterface {
    function createComparison($input) {
      $id = $this->jobQueue->addToQueue($input['input_id'],$input['parameters']);
      header('Content-Type: application/json');
-     echo "{'id':'$id',
-            'status':'queued'}";
+     $output = [
+       'id' => $id,
+       'status' => 'queued'
+     ];
+     echo json_encode($output);
+
      http_response_code(200);
    }
 
@@ -33,11 +37,15 @@ class ComparisonInterface {
    function getResult($key) {
      header('Content-Type: application/json');
       $results = query("SELECT * FROM Results WHERE id='$key'");
+
      if (sizeof($results) == 0) {
-       echo "{'status':'not found'}";
+       echo '{"status":"not found"}';
      } else {
-       echo "{'status':{$results['status']},
-          'data':{$results['data']}}";
+       // Make an array with the data to be sent, then convert it to JSON.
+       $output = [
+         'status' => $results['status'],
+          'data' => $results['data']];
+          echo json_encode($output);
      }
      http_response_code(200);
    }

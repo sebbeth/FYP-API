@@ -15,6 +15,9 @@ require_once 'ComparisonInterface.php';
 require_once 'UploadInterface.php';
 require_once 'JobQueue.php';
 
+header('Access-Control-Allow-Origin: http://localhost:4200');
+header('Access-Control-Allow-Headers');
+
 // get the HTTP method, path and body of the request
 $method = $_SERVER['REQUEST_METHOD'];
 $request = explode('/', trim($_SERVER['PATH_INFO'],'/'));

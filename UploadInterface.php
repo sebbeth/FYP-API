@@ -38,7 +38,11 @@ class UploadInterface {
        query("INSERT INTO InputData (data) VALUES ('$data');");
      }
      header('Content-Type: application/json');
-     echo "{id:".getLatestInsert()."}";
+     $output = [
+       'id' => getLatestInsert()
+     ];
+     echo json_encode($output);
+
      http_response_code(200);
    }
 
