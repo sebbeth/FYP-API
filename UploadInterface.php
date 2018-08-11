@@ -63,6 +63,24 @@ class UploadInterface {
    }
 
 
+   function getAllInputData($accountId) {
+     if (!isset($accountId)) { // If no key is set, return error
+       http_response_code(400);
+       return;
+     }
+     $query = queryAll("SELECT data FROM InputData WHERE account_id='$accountId' LIMIT 10"); // Get every input set for account
+     header('Content-Type: application/json');
+     $count = count($query);
+     foreach ($query as $key => $value) {
+       echo $value['data']; // Print the data, we expect it to be valid JSON.
+       if (--$count > 0) {
+         echo ','; // For every row except the last, add a comma between rows.
+       }
+    }
+     http_response_code(200);
+   }
+
+
 
 
  }

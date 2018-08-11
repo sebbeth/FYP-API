@@ -41,6 +41,10 @@ Schedules an analysis on input data already stored in the database.
 
 JSON input used to control parameters of analysis and indentifies which input dataset to use.
 
+api.php/upload/ - GET
+
+Returns every input data set for the user
+
 api.php/upload/{id} - GET
 
 Returns an existing input dataset from database with given id
@@ -69,9 +73,13 @@ switch ($resource) {
     http_response_code(400);
   }
 
-  if ( ($method == 'GET') && (isset($key)) ) {
-    $ComparisonInterface->getResult($key); // Return the results of a comparison
-    return;
+  if ($method == 'GET') {
+
+    if ($key == 0) {
+      $ComparisonInterface->getAllResults(1); // Return every result for the account
+    } else {
+      $ComparisonInterface->getResult($key); // Return the results of a comparison
+    }
   } else {
     http_response_code(400);
   }
@@ -89,9 +97,12 @@ switch ($resource) {
     http_response_code(400);
   }
 
-  if ( ($method == 'GET') && (isset($key)) ) {
-    $UploadInterface->getInputData($key); // Return the results of a comparison
-    return;
+  if ($method == 'GET') {
+    if ($key == 0) {
+      $UploadInterface->getAllInputData(1); // Return every input set for account
+    } else {
+      $UploadInterface->getInputData($key); // Return a single input set
+    }
   } else {
     http_response_code(400);
   }
