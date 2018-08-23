@@ -17,7 +17,7 @@ function consumeJob() {
 
   echo debug($job);
   // Start of computation
-  query("INSERT INTO Results (id,input_id,status,data) VALUES ('{$job['id']}','{$job['input_id']}','PROCESSING','');");
+  query("INSERT INTO Results (id,account_id,input_id,status,data) VALUES ('{$job['id']}','{$job['account_id']}','{$job['input_id']}','PROCESSING','');");
 
 
   $resultData = $dbConnection->real_escape_string("{'result':'data'}");
