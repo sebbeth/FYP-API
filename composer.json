@@ -1,5 +1,8 @@
 {
     "require": {
         "hazardland/debug": "^1.0"
+    },
+    "require-dev": {
+        "codeception/codeception": "^2.4"
     }
 }
