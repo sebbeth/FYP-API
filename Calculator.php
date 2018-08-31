@@ -24,7 +24,7 @@ class Calculator {
 
     $parameters = json_decode($job['parameters'],true);
     $save = true;
-    if (isset($parameters['no-save'])) {
+    if ( isset($parameters['no-save']) ) {
       $save = false;
     }
 
@@ -43,7 +43,7 @@ class Calculator {
     }
     // Drop the Job from the job queue.
     if ($save) {
-      query("DELETE FROM JobQueue WHERE id='{$job['id']}'");
+      //query("DELETE FROM JobQueue WHERE id='{$job['id']}'");
     }
   }
 
@@ -78,13 +78,12 @@ class Calculator {
         $totalCost = $solution['initial_cost'];
       }
 
-      
+
 
     }
 
 
-
-    return $dbConnection->real_escape_string("{'total_cost':'$totalCost'}");
+    return $dbConnection->real_escape_string('{"total_cost":"' . $totalCost . '"}');
   }
 
 

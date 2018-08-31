@@ -43,6 +43,7 @@ class ComparisonInterface {
      } else {
        // Make an array with the data to be sent, then convert it to JSON.
        $output = [
+         'timestamp' => $results['timestamp'],
          'status' => $results['status'],
           'data' => $results['data']];
           echo json_encode($output);
@@ -57,13 +58,17 @@ class ComparisonInterface {
      }
      $query = queryAll("SELECT * FROM Results WHERE account_id='$accountId' LIMIT 10"); // Get every input set for account
      header('Content-Type: application/json');
+     echo '{';// Open the brackets
      $count = count($query);
      foreach ($query as $key => $value) {
-       echo $value['data']; // Print the data, we expect it to be valid JSON.
+       echo  '"' . $value['id'] . '":{' .
+          '"timestamp":"' . $value['timestamp'] .
+           '", "data":' . $value['data'] . '}'; // Print the data, we expect it to be valid JSON.
        if (--$count > 0) {
          echo ','; // For every row except the last, add a comma between rows.
        }
-     }
+    }
+    echo '}'; // Close the brackets
      http_response_code(200);
    }
 
