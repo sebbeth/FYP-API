@@ -35,7 +35,7 @@ class Calculator {
 
     // Do the computation
     $resultData = $this->compute($job);
-    debug($resultData);
+
 
     // Upon completion
     if ($save) {
@@ -53,8 +53,12 @@ class Calculator {
   function compute($job) {
     global $dbConnection;
 
-
+//    debug($job);
     $totalCost = 0;
+    // Put the job parameters in an associative array.
+    $parameters = json_decode($job['parameters'],true);
+    debug('Parameters:');
+    debug($parameters);
 
     $inputDataSet = queryAll("SELECT * FROM InputData WHERE id='{$job['input_id']}'"); // TODO, extend this to many input sets
 
@@ -66,10 +70,12 @@ class Calculator {
     // TODO put this in a foreach
     $inputData = json_decode($inputDataSet[0]['data'],true);
 
-    debug($inputData);
+  //  debug($inputData);
+
+    $totalCostForSegment = [];
 
     // Iterate through every hour calculating the total cost of that segment
-    $segmentsRemaining = $inputData['run_for_hours'];
+    $segmentsRemaining = $parameters['run_time_hours'];
 
     // Every hour, add the cost of running the workload
     for ($i=0; $i < $segmentsRemaining; $i++) {
@@ -78,12 +84,21 @@ class Calculator {
         $totalCost = $solution['initial_cost'];
       }
 
+      $totalCostForSegment[$i] = $totalCost + ($i * 50);
 
 
     }
 
 
-    return $dbConnection->real_escape_string('{"total_cost":"' . $totalCost . '"}');
+    // Now let's colate the output
+
+    $results = [];
+    $results['0']['total_cost'] = $totalCost;
+    $results['0']['segments'] = $totalCostForSegment;
+
+
+    debug(json_encode($results));
+    return $dbConnection->real_escape_string(json_encode($results));
   }
 
 
