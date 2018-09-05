@@ -13,6 +13,8 @@ require_once 'vendor/autoload.php';
 require_once 'HelperFunctions.php';
 require_once 'ComparisonInterface.php';
 require_once 'UploadInterface.php';
+require_once 'SolutionInterface.php';
+require_once 'ProviderInterface.php';
 require_once 'JobQueue.php';
 
 header('Access-Control-Allow-Origin: http://localhost:4200');
@@ -65,7 +67,6 @@ switch ($resource) {
 
   $ComparisonInterface = new ComparisonInterface();
 
-
   if ( ($method == 'POST') && (isset($input)) ) {
     $ComparisonInterface->createComparison($input); // Initiate a comparison
     return;
@@ -107,6 +108,45 @@ switch ($resource) {
     http_response_code(400);
   }
 
+
+  break;
+
+  case ('solution'):
+
+  $solutionInterface = new SolutionInterface();
+
+  if ( ($method == 'POST') && (isset($input)) ) {
+    $solutionInterface->createSolution($input);
+    return;
+  } else {
+    http_response_code(400);
+  }
+
+  if ($method == 'GET') {
+    if ($key == 0) {
+  //    $solutionInterface->getAllInputData(1); // Return every input set for account
+    } else {
+    //  $solutionInterface->getInputData($key); // Return a single input set
+    }
+  } else {
+    http_response_code(400);
+  }
+
+  break;
+
+  case ('provider'):
+
+  $providerInterface = new ProviderInterface();
+
+  if ($method == 'GET') {
+    if ($key == 0) {
+      $providerInterface->getAllProviders(); // Return every provider
+    } else {
+      $providerInterface->getProvider($key); // Return a single provider set
+    }
+  } else {
+    http_response_code(400);
+  }
 
   break;
 

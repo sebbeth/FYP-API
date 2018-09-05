@@ -70,15 +70,15 @@ class UploadInterface {
      }
      $query = queryAll("SELECT * FROM InputData WHERE account_id='$accountId' LIMIT 10"); // Get every input set for account
      header('Content-Type: application/json');
-     echo '{';// Open the brackets
+     echo '[';// Open the brackets
      $count = count($query);
      foreach ($query as $key => $value) {
-       echo '"' . $value['id'] . '":' . $value['data']; // Print the data, we expect it to be valid JSON.
+       echo '{ "id":"' . $value['id'] . '","data":' . $value['data'] . '}'; // Print the data, we expect it to be valid JSON.
        if (--$count > 0) {
          echo ','; // For every row except the last, add a comma between rows.
        }
     }
-    echo '}'; // Close the brackets
+    echo ']'; // Close the brackets
      http_response_code(200);
    }
 
