@@ -43,7 +43,7 @@ class Calculator {
     }
     // Drop the Job from the job queue.
     if ($save) {
-      //query("DELETE FROM JobQueue WHERE id='{$job['id']}'");
+      query("DELETE FROM JobQueue WHERE id='{$job['id']}'");
     }
   }
 
