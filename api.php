@@ -15,6 +15,7 @@ require_once 'ComparisonInterface.php';
 require_once 'UploadInterface.php';
 require_once 'SolutionInterface.php';
 require_once 'ProviderInterface.php';
+require_once 'AccountInterface.php';
 require_once 'JobQueue.php';
 
 header('Access-Control-Allow-Origin: http://localhost:4200');
@@ -59,108 +60,121 @@ Stores an input dataset in database.
 
 
 try {
-if (isset($method)) {
+  if (isset($method)) {
 
-switch ($resource) {
+    switch ($resource) {
 
-  case ('comparison'):
+      case ('comparison'):
 
-  $ComparisonInterface = new ComparisonInterface();
+      $ComparisonInterface = new ComparisonInterface();
 
-  if ( ($method == 'POST') && (isset($input)) ) {
-    $ComparisonInterface->createComparison($input); // Initiate a comparison
-    return;
-  } else {
-    http_response_code(400);
-  }
+      if ( ($method == 'POST') && (isset($input)) ) {
+        $ComparisonInterface->createComparison($input); // Initiate a comparison
+        return;
+      } else {
+        http_response_code(400);
+      }
 
-  if ($method == 'GET') {
+      if ($method == 'GET') {
 
-    if ($key == 0) {
-      $ComparisonInterface->getAllResults(1); // Return every result for the account
-    } else {
-      $ComparisonInterface->getResult($key); // Return the results of a comparison
+        if ($key == 0) {
+          $ComparisonInterface->getAllResults(1); // Return every result for the account
+        } else {
+          $ComparisonInterface->getResult($key); // Return the results of a comparison
+        }
+      } else {
+        http_response_code(400);
+      }
+
+      break;
+
+      case ('upload'):
+
+      $UploadInterface = new UploadInterface();
+
+      if ( ($method == 'POST') && (isset($input)) ) {
+        $UploadInterface->addInputData($input); // Initiate a comparison
+        return;
+      } else {
+        http_response_code(400);
+      }
+
+      if ($method == 'GET') {
+        if ($key == 0) {
+          $UploadInterface->getAllInputData(1); // Return every input set for account
+        } else {
+          $UploadInterface->getInputData($key); // Return a single input set
+        }
+      } else {
+        http_response_code(400);
+      }
+
+
+      break;
+
+      case ('solution'):
+
+      $solutionInterface = new SolutionInterface();
+
+      if ( ($method == 'POST') && (isset($input)) ) {
+        $solutionInterface->createSolution($input);
+        return;
+      } else {
+        http_response_code(400);
+      }
+
+      if ($method == 'GET') {
+        if ($key == 0) {
+          //    $solutionInterface->getAllInputData(1); // Return every input set for account
+        } else {
+          //  $solutionInterface->getInputData($key); // Return a single input set
+        }
+      } else {
+        http_response_code(400);
+      }
+
+      break;
+
+      case ('provider'):
+
+      $providerInterface = new ProviderInterface();
+
+      if ($method == 'GET') {
+        if ($key == 0) {
+          $providerInterface->getAllProviders(); // Return every provider
+        } else {
+          $providerInterface->getProvider($key); // Return a single provider set
+        }
+      } else {
+        http_response_code(400);
+      }
+
+      break;
+
+      case ('account'):
+      $accountInterface = new AccountInterface();
+      if ($method == 'GET') {
+        if (authenticate()) {
+          $accountInterface->getAccount();
+          return;
+        }
+      }
+      if ( ($method == 'POST') && (isset($input)) ) {
+        $accountInterface->createAccount($input);
+      } else {
+        http_response_code(400);
+      }
+
+
+      break;
+
+      default:
+      http_response_code(400);
+      break;
+
+
     }
-  } else {
-    http_response_code(400);
   }
-
-  break;
-
-  case ('upload'):
-
-  $UploadInterface = new UploadInterface();
-
-  if ( ($method == 'POST') && (isset($input)) ) {
-    $UploadInterface->addInputData($input); // Initiate a comparison
-    return;
-  } else {
-    http_response_code(400);
-  }
-
-  if ($method == 'GET') {
-    if ($key == 0) {
-      $UploadInterface->getAllInputData(1); // Return every input set for account
-    } else {
-      $UploadInterface->getInputData($key); // Return a single input set
-    }
-  } else {
-    http_response_code(400);
-  }
-
-
-  break;
-
-  case ('solution'):
-
-  $solutionInterface = new SolutionInterface();
-
-  if ( ($method == 'POST') && (isset($input)) ) {
-    $solutionInterface->createSolution($input);
-    return;
-  } else {
-    http_response_code(400);
-  }
-
-  if ($method == 'GET') {
-    if ($key == 0) {
-  //    $solutionInterface->getAllInputData(1); // Return every input set for account
-    } else {
-    //  $solutionInterface->getInputData($key); // Return a single input set
-    }
-  } else {
-    http_response_code(400);
-  }
-
-  break;
-
-  case ('provider'):
-
-  $providerInterface = new ProviderInterface();
-
-  if ($method == 'GET') {
-    if ($key == 0) {
-      $providerInterface->getAllProviders(); // Return every provider
-    } else {
-      $providerInterface->getProvider($key); // Return a single provider set
-    }
-  } else {
-    http_response_code(400);
-  }
-
-  break;
-
-  case ('account'):
-  //TODO
-  break;
-
-  default:
-    http_response_code(400);
-  break;
-
-
-}
-}
 
 } catch (Exception $e) {
   echo $e;

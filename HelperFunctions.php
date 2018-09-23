@@ -27,6 +27,21 @@ function getLatestInsert() {
   return mysqli_insert_id($dbConnection);
 }
 
+function authenticate() {
+// TODO SAnitise input
+  $user = $_SERVER['PHP_AUTH_USER'];
+  $account = query("SELECT * FROM Accounts WHERE username='$user' LIMIT 1"); // Get the account from debug
+  
+  if (isset($_SERVER['PHP_AUTH_USER'])  &&  isset($account) && password_verify($_SERVER['PHP_AUTH_PW'],$account['password_hash'])) {
+    return true;
+
+  } else {
+      header('WWW-Authenticate: Basic realm="SBROWN"');
+      header('HTTP/1.0 401 Unauthorized');
+      return false;
+
+  }
+}
 
 
  ?>
