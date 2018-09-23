@@ -9,19 +9,31 @@ class ProviderInterface {
    /*
 
    */
-   function getProvider($key) {
+   function getProvider($key) { // Get a provider along with an array of it's solutions
      header('Content-Type: application/json');
-
-     $query = queryAll("SELECT * FROM Providers WHERE id=$key LIMIT 1"); // Get every input set for account
-     echo json_encode($query);
+     $output = '';
+     $provider = queryAll("SELECT * FROM Providers WHERE id=$key LIMIT 1");
+     $solutions = queryAll("SELECT * FROM Solutions WHERE provider=$key");
+     $provider['solutions'] = $solutions; // Add each solution to the provider array
+     $output .=  json_encode($provider);
+     echo $output;
      http_response_code(200);
    }
 
-   function getAllProviders() {
-
-     $query = queryAll("SELECT * FROM Providers"); // Get every input set for account
+   function getAllProviders() { // Get every provider along with an array of all their solutions
      header('Content-Type: application/json');
-     echo json_encode($query);
+     $providers = queryAll("SELECT * FROM Providers"); // Get all providers
+     $output = '[';
+     $count = count($providers);
+     foreach ($providers as $provider) {
+       $solutions = queryAll("SELECT * FROM Solutions WHERE provider='{$provider['id']}'");
+       $provider['solutions'] = $solutions; // Add each solution to the provider array
+       $output .=  json_encode($provider);
+       if (--$count > 0) {
+          $output .= ','; // For every row except the last, add a comma between rows.
+       }
+     }
+     echo $output.= ']';
      http_response_code(200);
    }
 

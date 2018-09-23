@@ -21,7 +21,7 @@ class ValidJSONCest
 
     public function testSingleUploadEndpoint(ApiTester $I)
     {
-      $I->sendGET('/upload/6');
+      $I->sendGET('/upload/30');
       $I->seeResponseCodeIs(200);
       $I->seeResponseIsJson();
     }
@@ -36,6 +36,20 @@ class ValidJSONCest
     public function testSingleComparisonEndpoint(ApiTester $I)
     {
       $I->sendGET('/comparison/20');
+      $I->seeResponseCodeIs(200);
+      $I->seeResponseIsJson();
+    }
+
+    public function testAllProvidersEndpoint(ApiTester $I)
+    {
+      $I->sendGET('/provider');
+      $I->seeResponseCodeIs(200);
+      $I->seeResponseIsJson();
+    }
+
+    public function testSingleProvidersEndpoint(ApiTester $I)
+    {
+      $I->sendGET('/provider/1');
       $I->seeResponseCodeIs(200);
       $I->seeResponseIsJson();
     }
