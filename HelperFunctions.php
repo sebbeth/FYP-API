@@ -22,7 +22,7 @@ function queryAll( $query ) {
     return $output;
 }
 
-function getLatestInsert($query) {
+function getLatestInsert() {
   global $dbConnection;
   return mysqli_insert_id($dbConnection);
 }

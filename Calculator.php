@@ -30,7 +30,7 @@ class Calculator {
 
     // Create a results row.
     if ($save) {
-      query("INSERT INTO Results (id,account_id,input_id,status,data) VALUES ('{$job['id']}','{$job['account_id']}','{$job['input_id']}','PROCESSING','');");
+      query("UPDATE Results SET status='PROCESSING' WHERE id='{$job['id']}';");
     }
 
     // Do the computation

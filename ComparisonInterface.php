@@ -20,7 +20,7 @@ class ComparisonInterface {
 
 
    function createComparison($input) {
-     $id = $this->jobQueue->addToQueue($input['input_id'],$input['parameters']);
+     $id = $this->jobQueue->addToQueue($input['input_id'],$input['parameters'],$input['account_id']);
      header('Content-Type: application/json');
      $output = [
        'id' => $id,
