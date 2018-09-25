@@ -27,20 +27,30 @@ function getLatestInsert() {
   return mysqli_insert_id($dbConnection);
 }
 
+/*
+
+
+
+@return int - The ID of the account or null if inauthorized
+*/
 function authenticate() {
 // TODO SAnitise input
-  $user = $_SERVER['PHP_AUTH_USER'];
-  $account = query("SELECT * FROM Accounts WHERE username='$user' LIMIT 1"); // Get the account from debug
-  
-  if (isset($_SERVER['PHP_AUTH_USER'])  &&  isset($account) && password_verify($_SERVER['PHP_AUTH_PW'],$account['password_hash'])) {
-    return true;
 
-  } else {
-      header('WWW-Authenticate: Basic realm="SBROWN"');
-      header('HTTP/1.0 401 Unauthorized');
-      return false;
+list($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']) = explode(':' , base64_decode(substr($_SERVER['HTTP_AUTHORIZATION'], 6)));
 
+// TODO input sanitation
+if ( isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW']) ) {
+
+  $account = query("SELECT * FROM Accounts WHERE username='{$_SERVER['PHP_AUTH_USER']}' LIMIT 1");
+
+  if (isset($account) && password_verify($_SERVER['PHP_AUTH_PW'],$account['password_hash']) ) {
+    return $account['id'];
   }
+}
+//
+header('HTTP/1.0 401 Unauthorized');
+return null;
+
 }
 
 

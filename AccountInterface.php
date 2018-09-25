@@ -30,8 +30,6 @@ class AccountInterface {
 
 
      query("INSERT INTO Accounts (username,password_hash) VALUES ('$user','$hash')");
-
-     echo 'done';
      http_response_code(200);
 
    }

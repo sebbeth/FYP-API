@@ -18,8 +18,17 @@ require_once 'ProviderInterface.php';
 require_once 'AccountInterface.php';
 require_once 'JobQueue.php';
 
+//header('Access-Control-Allow-Origin: http://localhost:4200');
+
+//header('Access-Control-Allow-Origin: *');
+//header('Access-Control-Allow-Headers');
+//header('HTTP/1.1 200 OK');
+
 header('Access-Control-Allow-Origin: http://localhost:4200');
-header('Access-Control-Allow-Headers');
+header('Access-Control-Allow-Credentials: true');
+header('Content-Type: application/json');
+header('Cache-Control: no-cache');
+
 
 // get the HTTP method, path and body of the request
 $method = $_SERVER['REQUEST_METHOD'];
@@ -62,6 +71,27 @@ Stores an input dataset in database.
 try {
   if (isset($method)) {
 
+
+    if ($method == 'OPTIONS') {
+
+      // Tell the Client this preflight holds good for only 20 days
+      if($_SERVER['HTTP_ORIGIN'] == "http://localhost:4200") {
+        header('Access-Control-Allow-Origin: http://localhost:4200');
+        header('Access-Control-Allow-Methods: GET, OPTIONS');
+        header('Access-Control-Allow-Credentials: true');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization');
+        header('Access-Control-Max-Age: 1728000');
+        header("Content-Length: 0");
+      //  header("Content-Type: text/plain");
+      } else {
+        header("HTTP/1.1 403 Access Forbidden");
+        header("Content-Type: text/plain");
+        echo "You cannot repeat this request";
+      }
+
+      return;
+    }
+
     switch ($resource) {
 
       case ('comparison'):
@@ -76,12 +106,14 @@ try {
       }
 
       if ($method == 'GET') {
-
+        $accountId = authenticate();
+        if ($accountId != null) {
         if ($key == 0) {
-          $ComparisonInterface->getAllResults(1); // Return every result for the account
+          $ComparisonInterface->getAllResults($accountId); // Return every result for the account
         } else {
           $ComparisonInterface->getResult($key); // Return the results of a comparison
         }
+      }
       } else {
         http_response_code(400);
       }
@@ -154,7 +186,8 @@ try {
       case ('account'):
       $accountInterface = new AccountInterface();
       if ($method == 'GET') {
-        if (authenticate()) {
+        $accountId = authenticate();
+        if ($accountId != null) {
           $accountInterface->getAccount();
           return;
         }
@@ -165,8 +198,6 @@ try {
         http_response_code(400);
       }
 
-
-      break;
 
       default:
       http_response_code(400);
