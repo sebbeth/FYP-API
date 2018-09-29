@@ -1,0 +1,8 @@
+tests/api/AllUploadCest.php:tryToTest
+tests/api/UploadWithoutInputCest.php:tryToTest
+tests/api/ValidJSONCest.php:testUploadEndpoint
+tests/api/ValidJSONCest.php:testSingleUploadEndpoint
+tests/api/ValidJSONCest.php:testComparisonEndpoint
+tests/api/ValidJSONCest.php:testSingleComparisonEndpoint
+tests/api/ValidJSONCest.php:testAllProvidersEndpoint
+tests/api/ValidJSONCest.php:testSingleProvidersEndpoint

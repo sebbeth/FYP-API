@@ -16,13 +16,7 @@ require_once 'UploadInterface.php';
 require_once 'SolutionInterface.php';
 require_once 'ProviderInterface.php';
 require_once 'AccountInterface.php';
-require_once 'JobQueue.php';
 
-//header('Access-Control-Allow-Origin: http://localhost:4200');
-
-//header('Access-Control-Allow-Origin: *');
-//header('Access-Control-Allow-Headers');
-//header('HTTP/1.1 200 OK');
 
 header('Access-Control-Allow-Origin: http://localhost:4200');
 header('Access-Control-Allow-Credentials: true');
@@ -82,7 +76,6 @@ try {
         header('Access-Control-Allow-Headers: Content-Type, Authorization');
         header('Access-Control-Max-Age: 1728000');
         header("Content-Length: 0");
-      //  header("Content-Type: text/plain");
       } else {
         header("HTTP/1.1 403 Access Forbidden");
         header("Content-Type: text/plain");
@@ -95,99 +88,106 @@ try {
     switch ($resource) {
 
       case ('comparison'):
+      $accountId = authenticate();
+      if ($accountId != null) { // Auth Required
+        $ComparisonInterface = new ComparisonInterface();
 
-      $ComparisonInterface = new ComparisonInterface();
-
-      if ( ($method == 'POST') && (isset($input)) ) {
-        $ComparisonInterface->createComparison($input); // Initiate a comparison
-        return;
-      } else {
-        http_response_code(400);
-      }
-
-      if ($method == 'GET') {
-        $accountId = authenticate();
-        if ($accountId != null) {
-        if ($key == 0) {
-          $ComparisonInterface->getAllResults($accountId); // Return every result for the account
+        if ( ($method == 'POST') && (isset($input)) ) {
+          $ComparisonInterface->createComparison($input); // Initiate a comparison
+          return;
         } else {
-          $ComparisonInterface->getResult($key); // Return the results of a comparison
+          http_response_code(400);
+        }
+
+        if ($method == 'GET') {
+
+          if ($key == 0) {
+            $ComparisonInterface->getAllResults($accountId); // Return every result for the account
+            return;
+          } else {
+            $ComparisonInterface->getResult($key); // Return the results of a comparison
+            return;
+          }
+
+        } else {
+          http_response_code(400);
         }
       }
-      } else {
-        http_response_code(400);
-      }
-
       break;
 
       case ('upload'):
+      $accountId = authenticate();
+      if ($accountId != null) { // Auth Required
+        $UploadInterface = new UploadInterface();
 
-      $UploadInterface = new UploadInterface();
-
-      if ( ($method == 'POST') && (isset($input)) ) {
-        $UploadInterface->addInputData($input); // Initiate a comparison
-        return;
-      } else {
-        http_response_code(400);
-      }
-
-      if ($method == 'GET') {
-        if ($key == 0) {
-          $UploadInterface->getAllInputData(1); // Return every input set for account
+        if ( ($method == 'POST') && (isset($input)) ) {
+          $UploadInterface->addInputData($input); // Initiate a comparison
+          return;
         } else {
-          $UploadInterface->getInputData($key); // Return a single input set
+          http_response_code(400);
         }
-      } else {
-        http_response_code(400);
+
+        if ($method == 'GET') {
+          if ($key == 0) {
+            $UploadInterface->getAllInputData(1); // Return every input set for account
+          } else {
+            $UploadInterface->getInputData($key); // Return a single input set
+          }
+        } else {
+          http_response_code(400);
+        }
       }
 
 
       break;
 
       case ('solution'):
+      $accountId = authenticate();
+      if ($accountId != null) { // Auth Required
+        $solutionInterface = new SolutionInterface();
 
-      $solutionInterface = new SolutionInterface();
-
-      if ( ($method == 'POST') && (isset($input)) ) {
-        $solutionInterface->createSolution($input);
-        return;
-      } else {
-        http_response_code(400);
-      }
-
-      if ($method == 'GET') {
-        if ($key == 0) {
-          //    $solutionInterface->getAllInputData(1); // Return every input set for account
+        if ( ($method == 'POST') && (isset($input)) ) {
+          $solutionInterface->createSolution($input);
+          return;
         } else {
-          //  $solutionInterface->getInputData($key); // Return a single input set
+          http_response_code(400);
         }
-      } else {
-        http_response_code(400);
+
+        if ($method == 'GET') {
+          if ($key == 0) {
+            //    $solutionInterface->getAllInputData(1); // Return every input set for account
+          } else {
+            //  $solutionInterface->getInputData($key); // Return a single input set
+          }
+        } else {
+          http_response_code(400);
+        }
       }
 
       break;
 
       case ('provider'):
+      $accountId = authenticate();
+      if ($accountId != null) { // Auth Required
+        $providerInterface = new ProviderInterface();
 
-      $providerInterface = new ProviderInterface();
-
-      if ($method == 'GET') {
-        if ($key == 0) {
-          $providerInterface->getAllProviders(); // Return every provider
+        if ($method == 'GET') {
+          if ($key == 0) {
+            $providerInterface->getAllProviders(); // Return every provider
+          } else {
+            $providerInterface->getProvider($key); // Return a single provider set
+          }
         } else {
-          $providerInterface->getProvider($key); // Return a single provider set
+          http_response_code(400);
         }
-      } else {
-        http_response_code(400);
       }
-
       break;
 
       case ('account'):
       $accountInterface = new AccountInterface();
       if ($method == 'GET') {
         $accountId = authenticate();
-        if ($accountId != null) {
+        if ($accountId != null) { // Auth Required
           $accountInterface->getAccount();
           return;
         }
@@ -202,8 +202,6 @@ try {
       default:
       http_response_code(400);
       break;
-
-
     }
   }
 
