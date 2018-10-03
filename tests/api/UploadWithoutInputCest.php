@@ -5,6 +5,7 @@ class UploadWithoutInputCest
 {
     public function _before(ApiTester $I)
     {
+      $I->amHttpAuthenticated('tester', 'apitest');
     }
 
     public function _after(ApiTester $I)

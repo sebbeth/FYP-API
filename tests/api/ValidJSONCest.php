@@ -5,6 +5,7 @@ class ValidJSONCest
 {
     public function _before(ApiTester $I)
     {
+      $I->amHttpAuthenticated('tester', 'apitest');
     }
 
     public function _after(ApiTester $I)
@@ -14,6 +15,7 @@ class ValidJSONCest
     // tests
     public function testUploadEndpoint(ApiTester $I)
     {
+
       $I->sendGET('/upload');
       $I->seeResponseCodeIs(200);
       $I->seeResponseIsJson();
