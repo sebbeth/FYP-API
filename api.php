@@ -71,7 +71,7 @@ try {
       // Tell the Client this preflight holds good for only 20 days
       if($_SERVER['HTTP_ORIGIN'] == "http://localhost:4200") {
         header('Access-Control-Allow-Origin: http://localhost:4200');
-        header('Access-Control-Allow-Methods: GET, OPTIONS');
+        header('Access-Control-Allow-Methods: GET, DELETE, POST, OPTIONS');
         header('Access-Control-Allow-Credentials: true');
         header('Access-Control-Allow-Headers: Content-Type, Authorization');
         header('Access-Control-Max-Age: 1728000');
@@ -127,9 +127,19 @@ try {
           http_response_code(400);
         }
 
+        if ($method == 'DELETE') {
+          if ($key == 0) {
+            http_response_code(400);
+          } else {
+            $UploadInterface->deleteInputData($key);
+            return;
+          }
+
+        }
+
         if ($method == 'GET') {
           if ($key == 0) {
-            $UploadInterface->getAllInputData(1); // Return every input set for account
+            $UploadInterface->getAllInputData($accountId); // Return every input set for account
           } else {
             $UploadInterface->getInputData($key); // Return a single input set
           }
@@ -200,7 +210,7 @@ try {
 
 
       default:
-      http_response_code(400);
+      http_response_code(404);
       break;
     }
   }

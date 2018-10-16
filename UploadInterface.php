@@ -26,17 +26,39 @@ class UploadInterface {
    */
    function addInputData($input) {
 
-     if (!isset($input['data'])) { // If no input is set, return error
+     if (!isset($input['input'])) { // If no input is set, return error
        http_response_code(400);
        return;
      }
-     $data = json_encode($input['data']);
+     $inputData = $input['input'];
+
+     // Now break input data appart and store it
+
+
+    $description = '';
+    $start_date = '';
+    $spec = '';
+    $data = '';
+
+    if (array_key_exists('description',$input['input'])) {
+        $description = $input['input']['description'];
+      }
+    if (array_key_exists('start_date',$input['input'])) {
+        $start_date = $input['input']['start_date'];
+      }
+      if (array_key_exists('data',$input['input'])) {
+        $data = json_encode($input['input']['data']);
+      }
+      if (array_key_exists('spec',$input['input'])) {
+        $spec = json_encode($input['input']['spec']);
+      }
 
      if (isset($input['account'])) {
-       query("INSERT INTO InputData ( account_id, data) VALUES ('{$input['account']}', '$data');");
+       query("INSERT INTO InputData ( account_id, description, start_date, spec, data) VALUES ('{$input['account']}', '$description', '$start_date', '$spec', '$data');");
      } else {
        query("INSERT INTO InputData (data) VALUES ('$data');");
      }
+
      header('Content-Type: application/json');
      $output = [
        'id' => getLatestInsert()
@@ -46,20 +68,29 @@ class UploadInterface {
      http_response_code(200);
    }
 
-   /*
 
-   */
-   function getInputData($key) {
-
+   function deleteInputData($key) {
      if (!isset($key)) { // If no key is set, return error
        http_response_code(400);
        return;
      }
 
+     query("DELETE FROM InputData WHERE id='$key'");
+     header('Content-Type: application/json');
+     http_response_code(200);
+
+   }
+
+   /*
+
+   */
+   function getInputData($key) {
+
+
      $query = query("SELECT * FROM InputData WHERE id='$key' LIMIT 1");
      header('Content-Type: application/json');
-     echo $query['data'];
      http_response_code(200);
+     echo $query['data'];
    }
 
 
@@ -68,8 +99,9 @@ class UploadInterface {
        http_response_code(400);
        return;
      }
-     $query = queryAll("SELECT * FROM InputData WHERE account_id='$accountId' LIMIT 10"); // Get every input set for account
+     $query = queryAll("SELECT * FROM InputData WHERE account_id='$accountId' ORDER BY id DESC"); // Get every input set for account
      header('Content-Type: application/json');
+     http_response_code(200);
      echo '[';// Open the brackets
      $count = count($query);
      foreach ($query as $key => $value) {
@@ -79,7 +111,6 @@ class UploadInterface {
        }
     }
     echo ']'; // Close the brackets
-     http_response_code(200);
    }
 
 

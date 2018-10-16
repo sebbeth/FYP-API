@@ -23,7 +23,7 @@ class ValidJSONCest
 
     public function testSingleUploadEndpoint(ApiTester $I)
     {
-      $I->sendGET('/upload/30');
+      $I->sendGET('/upload/49');
       $I->seeResponseCodeIs(200);
       $I->seeResponseIsJson();
     }
