@@ -16,7 +16,7 @@ class ComparisonInterface {
 */
 
 
-function createComparison($input) {
+function createComparison($input,$fullHostname) {
 
   // First parse inputs and solutions into comma delineated strings
   $inputs = '';
@@ -123,6 +123,7 @@ function getResult($key) {
       //   $data = json_decode($value['data'],true);   // Data is stored as a string, parse it into a JSON array of objects
 
       echo  '{ "id":"' . $value['id'] . '",' .
+        '"status":"' . $value['status'] . '",' .
         '"inputs":' . $inputs . ',' .
         '"solutions":' . $solutions . ',' .
         '"providers":' . $providers . ',' .

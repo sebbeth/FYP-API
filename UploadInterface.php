@@ -88,8 +88,17 @@ class UploadInterface {
 
      $query = query("SELECT * FROM InputData WHERE id='$key' LIMIT 1");
      header('Content-Type: application/json');
-     http_response_code(200);
-     echo $query['data'];
+     try {
+       http_response_code(200);
+       echo '{ "id":"' . $query['id'] . '",' .
+         '"description": "' . $query['description'] . '",' .
+         '"start_date": "' . $query['start_date'] . '",' .
+         '"spec":' . $query['spec'] . ',' .
+         '"data":' . $query['data'] . '}';
+     } catch (Exception $e) {
+       http_response_code(500);
+     }
+
    }
 
 

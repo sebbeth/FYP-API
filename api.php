@@ -91,9 +91,8 @@ try {
       $accountId = authenticate();
       if ($accountId != null) { // Auth Required
         $ComparisonInterface = new ComparisonInterface();
-
         if ( ($method == 'POST') && (isset($input)) ) {
-          $ComparisonInterface->createComparison($input); // Initiate a comparison
+          $ComparisonInterface->createComparison($input,$fullHostname); // Initiate a comparison
           return;
         } else {
           http_response_code(400);
