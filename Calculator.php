@@ -45,7 +45,9 @@ class Calculator {
   }
 
   /*
+    compute
 
+    This is where the cost analysis is performed 
   */
   function compute($job,$comparison) {
     global $dbConnection;

@@ -105,7 +105,11 @@ class UploadInterface {
      echo '[';// Open the brackets
      $count = count($query);
      foreach ($query as $key => $value) {
-       echo '{ "id":"' . $value['id'] . '","data":' . $value['data'] . '}'; // Print the data, we expect it to be valid JSON.
+       echo '{ "id":"' . $value['id'] . '",' .
+         '"description": "' . $value['description'] . '",' .
+         '"start_date": "' . $value['start_date'] . '",' .
+         '"spec":' . $value['spec'] . ',' .
+         '"data":' . $value['data'] . '}'; // Print the data, we expect it to be valid JSON.
        if (--$count > 0) {
          echo ','; // For every row except the last, add a comma between rows.
        }
