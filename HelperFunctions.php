@@ -1,12 +1,18 @@
 <?php
 
 
+$production = false;
 
-$dbConnection = new mysqli("127.0.0.1", "root", "","FYP");
+if ($production) {
+  $dbConnection = new mysqli("127.0.0.1", "hunterbi_sbrown", "dasN0vraK2b","hunterbi_sbrown_FYP");
+} else {
+  $dbConnection = new mysqli("127.0.0.1", "root", "","FYP");
+
+}
 
 function query($query) {
   global $dbConnection;
-  return mysqli_fetch_assoc($dbConnection->query($query));
+  return @mysqli_fetch_assoc($dbConnection->query($query));
 }
 
 

@@ -24,13 +24,12 @@ class UploadInterface {
 
 
    */
-   function addInputData($input) {
+   function addInputData($input,$accountId) {
 
-     if (!isset($input['input'])) { // If no input is set, return error
+     if (!isset($input)) { // If no input is set, return error
        http_response_code(400);
        return;
      }
-     $inputData = $input['input'];
 
      // Now break input data appart and store it
 
@@ -40,21 +39,21 @@ class UploadInterface {
     $spec = '';
     $data = '';
 
-    if (array_key_exists('description',$input['input'])) {
-        $description = $input['input']['description'];
+    if (array_key_exists('description',$input)) {
+        $description = $input['description'];
       }
-    if (array_key_exists('start_date',$input['input'])) {
-        $start_date = $input['input']['start_date'];
+    if (array_key_exists('start_date',$input)) {
+        $start_date = $input['start_date'];
       }
-      if (array_key_exists('data',$input['input'])) {
-        $data = json_encode($input['input']['data']);
+      if (array_key_exists('data',$input)) {
+        $data = json_encode($input['data']);
       }
-      if (array_key_exists('spec',$input['input'])) {
-        $spec = json_encode($input['input']['spec']);
+      if (array_key_exists('spec',$input)) {
+        $spec = json_encode($input['spec']);
       }
 
-     if (isset($input['account'])) {
-       query("INSERT INTO InputData ( account_id, description, start_date, spec, data) VALUES ('{$input['account']}', '$description', '$start_date', '$spec', '$data');");
+     if (isset($accountId)) {
+       query("INSERT INTO InputData ( account_id, description, start_date, spec, data) VALUES ('$accountId', '$description', '$start_date', '$spec', '$data');");
      } else {
        query("INSERT INTO InputData (data) VALUES ('$data');");
      }

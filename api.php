@@ -121,7 +121,7 @@ try {
         $UploadInterface = new UploadInterface();
 
         if ( ($method == 'POST') && (isset($input)) ) {
-          $UploadInterface->addInputData($input); // Initiate a comparison
+          $UploadInterface->addInputData($input,$accountId); // Initiate a comparison
           return;
         } else {
           http_response_code(400);
