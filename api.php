@@ -18,7 +18,7 @@ require_once 'ProviderInterface.php';
 require_once 'AccountInterface.php';
 
 
-header('Access-Control-Allow-Origin: http://localhost:4200');
+header("Access-Control-Allow-Origin: $allowedOrigin");
 header('Access-Control-Allow-Credentials: true');
 header('Content-Type: application/json');
 header('Cache-Control: no-cache');
@@ -69,8 +69,8 @@ try {
     if ($method == 'OPTIONS') {
 
       // Tell the Client this preflight holds good for only 20 days
-      if($_SERVER['HTTP_ORIGIN'] == "http://localhost:4200") {
-        header('Access-Control-Allow-Origin: http://localhost:4200');
+      if($_SERVER['HTTP_ORIGIN'] == $allowedOrigin) {
+        header("Access-Control-Allow-Origin: $allowedOrigin");
         header('Access-Control-Allow-Methods: GET, DELETE, POST, OPTIONS');
         header('Access-Control-Allow-Credentials: true');
         header('Access-Control-Allow-Headers: Content-Type, Authorization');

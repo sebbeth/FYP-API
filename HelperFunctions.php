@@ -1,12 +1,15 @@
 <?php
 
 
-$production = false;
 
-if ($production) {
+if ($_SERVER['HTTP_HOST'] == 'sbrown.hbcapp.com') {
   $dbConnection = new mysqli("127.0.0.1", "hunterbi_sbrown", "dasN0vraK2b","hunterbi_sbrown_FYP");
+  $allowedOrigin = 'https://fyp.sebbrown.net';
+  $fullHostname = 'https://sbrown.hbcapp.com/';
 } else {
   $dbConnection = new mysqli("127.0.0.1", "root", "","FYP");
+  $allowedOrigin = 'http://localhost:4200';
+  $fullHostname = 'http://localhost/FYP-API/';
 
 }
 

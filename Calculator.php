@@ -42,12 +42,18 @@ class Calculator {
     if ($save) {
         query("DELETE FROM JobQueue WHERE id='{$job['id']}'");
     }
+
+    // Now check if there are any other tasks to complete
+    $jobs = queryAll("SELECT id FROM JobQueue");
+    if (sizeof($jobs) != 0) { // If there are, consume them too.
+      $this->consumeJob();
+    }
   }
 
   /*
     compute
 
-    This is where the cost analysis is performed 
+    This is where the cost analysis is performed
   */
   function compute($job,$comparison) {
     global $dbConnection;
