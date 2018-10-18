@@ -203,6 +203,7 @@ try {
       }
       if ( ($method == 'POST') && (isset($input)) ) {
         $accountInterface->createAccount($input);
+        return;
       } else {
         http_response_code(400);
       }
