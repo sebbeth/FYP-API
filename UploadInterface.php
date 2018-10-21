@@ -45,11 +45,10 @@ class UploadInterface {
     if (array_key_exists('start_date',$input)) {
         $start_date = $input['start_date'];
       }
-      if (array_key_exists('data',$input)) {
-        $data = json_encode($input['data']);
-      }
-      if (array_key_exists('spec',$input)) {
-        $spec = json_encode($input['spec']);
+      // If input does not contain spec or data return an error
+      if ( ($input['spec'] == '') || ($input['data'] == '') ) {
+        http_response_code(400);
+        return;
       }
 
      if (isset($accountId)) {
@@ -88,6 +87,12 @@ class UploadInterface {
 
      $query = query("SELECT * FROM InputData WHERE id='$key' LIMIT 1");
      header('Content-Type: application/json');
+
+     if (sizeof($query) == 0) {
+       http_response_code(400);
+       return;
+     }
+
      try {
        http_response_code(200);
        echo '{ "id":"' . $query['id'] . '",' .
@@ -113,11 +118,20 @@ class UploadInterface {
      echo '[';// Open the brackets
      $count = count($query);
      foreach ($query as $key => $value) {
+
+       $spec = $value['spec'];
+       if ($spec == '') {
+         $spec = '""';
+       }
+       $data = $value['data'];
+       if ($data == '') {
+         $data = '""';
+       }
        echo '{ "id":"' . $value['id'] . '",' .
          '"description": "' . $value['description'] . '",' .
          '"start_date": "' . $value['start_date'] . '",' .
-         '"spec":' . $value['spec'] . ',' .
-         '"data":' . $value['data'] . '}'; // Print the data, we expect it to be valid JSON.
+         '"spec":' . $spec . ',' .
+         '"data":' . $data . '}'; // Print the data, we expect it to be valid JSON.
        if (--$count > 0) {
          echo ','; // For every row except the last, add a comma between rows.
        }
