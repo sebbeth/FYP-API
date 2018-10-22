@@ -164,9 +164,9 @@ try {
 
         if ($method == 'GET') {
           if ($key == 0) {
-            //    $solutionInterface->getAllInputData(1); // Return every input set for account
+               $solutionInterface->getAllCustomSolutions($accountId); // Return every input set for account
           } else {
-            //  $solutionInterface->getInputData($key); // Return a single input set
+              $solutionInterface->getCustomSolution($key,$accountId); // Return a single input set
           }
         } else {
           http_response_code(400);

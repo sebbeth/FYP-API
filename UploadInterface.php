@@ -26,6 +26,8 @@ class UploadInterface {
    */
    function addInputData($input,$accountId) {
 
+     header('Content-Type: application/json');
+
      if (!isset($input)) { // If no input is set, return error
        http_response_code(400);
        return;
@@ -57,13 +59,13 @@ class UploadInterface {
        query("INSERT INTO InputData (data) VALUES ('$data');");
      }
 
-     header('Content-Type: application/json');
+     http_response_code(200);
+
      $output = [
        'id' => getLatestInsert()
      ];
      echo json_encode($output);
 
-     http_response_code(200);
    }
 
 
