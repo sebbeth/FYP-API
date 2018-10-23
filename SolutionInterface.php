@@ -42,10 +42,30 @@ class SolutionInterface {
    */
 
 
-   function createSolution($input) {
+   function createSolution($input,$accountId) {
+     header('Content-Type: application/json');
 
-  //   echo json_encode($output);
+    // Do some validation
+    if (!isset($input['type'])) {
+      http_response_code(40);
+      return;
+    }
 
+     http_response_code(200);
+     $input = json_encode($input);
+     query("INSERT INTO Solutions ( provider, account_id, data ) VALUES ('0', '$accountId', '$input');");
+
+     $output = [
+       'id' => getLatestInsert()
+     ];
+     echo json_encode($output);
+     return;
+   }
+
+
+   function deleteSolution($key,$accountId) {
+     query("DELETE FROM Solutions WHERE id='$key' AND account_id='$accountId';");
+     header('Content-Type: application/json');
      http_response_code(200);
    }
 
@@ -79,6 +99,7 @@ class SolutionInterface {
        return;
      }
      $query = queryAll("SELECT * FROM Solutions WHERE account_id='$accountId' AND provider='0';"); // Get every input set for account
+     $count = count($query);
      header('Content-Type: application/json');
      http_response_code(200);
      echo '[';
@@ -87,11 +108,31 @@ class SolutionInterface {
        $data = json_decode($solution['data'],true);
        $data['id'] = $solution['id'];
        echo json_encode($data);
-
+       if (--$count > 0) {
+         echo ','; // For every row except the last, add a comma between rows.
+       }
      }
      echo ']';
      return;
 
+   }
+
+   /*
+   Returns a list of valid CPU identifiers
+   */
+   function getCPUOptions() {
+     header('Content-Type: application/json');
+     http_response_code(200);
+
+     $cpu_options = [
+       "Intel Xeon CPU E5-2670 @ 2.60GHz",
+       "AMD Ryzen Threadripper 1950X",
+       "Intel Core i5-4288U @ 2.60GHz"
+     ];
+
+     echo json_encode($cpu_options);
+
+     return;
    }
 
    function getSolutionsForProvider($providerId) {

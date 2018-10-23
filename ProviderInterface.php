@@ -13,8 +13,7 @@ class ProviderInterface {
      header('Content-Type: application/json');
      $output = '';
      $provider = queryAll("SELECT * FROM Providers WHERE id=$key LIMIT 1");
-     $solutions = queryAll("SELECT * FROM Solutions WHERE provider=$key");
-     $provider['solutions'] = $solutions; // Add each solution to the provider array
+     $provider['solutions'] = $this->getSolutions($key); // Add each solution to the provider array
      $output .=  json_encode($provider);
      echo $output;
      http_response_code(200);
@@ -26,8 +25,7 @@ class ProviderInterface {
      $output = '[';
      $count = count($providers);
      foreach ($providers as $provider) {
-       $solutions = queryAll("SELECT * FROM Solutions WHERE provider='{$provider['id']}'");
-       $provider['solutions'] = $solutions; // Add each solution to the provider array
+       $provider['solutions'] = $this->getSolutions($provider['id']); // Add each solution to the provider array
        $output .=  json_encode($provider);
        if (--$count > 0) {
           $output .= ','; // For every row except the last, add a comma between rows.
@@ -35,6 +33,15 @@ class ProviderInterface {
      }
      echo $output.= ']';
      http_response_code(200);
+   }
+
+
+   private function getSolutions($key) {
+     $solutions = queryAll("SELECT * FROM Solutions WHERE provider=$key");
+     foreach ($solutions as $key => $value) {
+       $solutions[$key]['data'] = json_decode($value['data'],true);
+     }
+     return $solutions;
    }
 
  }

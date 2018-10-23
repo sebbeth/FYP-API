@@ -101,6 +101,26 @@ class ValidJSONCest
       $I->assertTrue(isset($response));
     }
 
+
+    public function testAllSolutionsEndpoint(ApiTester $I)
+    {
+      $I->wantTo("Get all custom solutions for this account");
+      $I->sendGET('/solution');
+      $I->seeResponseCodeIs(200);
+      $I->seeResponseIsJson();
+      $response = $I->grabResponse();
+      $I->assertTrue(isset($response));
+    }
+
+    public function testSingleSolutionEndpoint(ApiTester $I)
+    {
+      $I->sendGET('/solution/11');
+      $I->seeResponseCodeIs(200);
+      $I->seeResponseIsJson();
+      $response = $I->grabResponse();
+      $I->assertTrue(isset($response));
+    }
+
     public function testUploadEndpoint(ApiTester $I)
     {
 

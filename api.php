@@ -156,7 +156,14 @@ try {
         $solutionInterface = new SolutionInterface();
 
         if ( ($method == 'POST') && (isset($input)) ) {
-          $solutionInterface->createSolution($input);
+          $solutionInterface->createSolution($input,$accountId);
+          return;
+        } else {
+          http_response_code(400);
+        }
+
+        if ( ($method == 'DELETE') && ($key != 0) ) {
+          $solutionInterface->deleteSolution($key,$accountId);
           return;
         } else {
           http_response_code(400);
@@ -173,6 +180,19 @@ try {
         }
       }
 
+      break;
+
+      case ('cpu'):
+      $accountId = authenticate();
+      if ($accountId != null) { // Auth Required
+        $solutionInterface = new SolutionInterface();
+
+        if ($method == 'GET') {
+          $solutionInterface->getCPUOptions();
+        } else {
+          http_response_code(400);
+        }
+      }
       break;
 
       case ('provider'):
