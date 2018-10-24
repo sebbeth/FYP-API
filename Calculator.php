@@ -40,13 +40,13 @@ class Calculator {
     }
     // Drop the Job from the job queue.
     if ($save) {
-        query("DELETE FROM JobQueue WHERE id='{$job['id']}'");
+    //    query("DELETE FROM JobQueue WHERE id='{$job['id']}'");
     }
 
     // Now check if there are any other tasks to complete
     $jobs = queryAll("SELECT id FROM JobQueue");
     if (sizeof($jobs) != 0) { // If there are, consume them too.
-      $this->consumeJob();
+    //  $this->consumeJob();
     }
   }
 
@@ -95,12 +95,12 @@ class Calculator {
       // Every hour, add the cost of running the workload
       for ($i=0; $i < $segmentsRemaining; $i++) {
         $initialCost = 0;
-        if ($i == 0) { $initialCost = $solution['initial_cost']; } // Add the initial costs
+        if ($i == 0) { $initialCost = 5.0; } // Add the initial costs
         $previousTotalCost = 0;
         if ($i > 0) {$previousTotalCost = $totalCostArray[$i-1]; }
 
         // Tally up all the costs for this comparison
-        $totalCostArray[$i] = $initialCost + $previousTotalCost + intval($solution['unmetered_cost']);
+        $totalCostArray[$i] = $initialCost + $previousTotalCost + doubleval(0.01);
       }
       // Now let's colate the output
       $results[$solutionIndex]['total_cost'] = end($totalCostArray);

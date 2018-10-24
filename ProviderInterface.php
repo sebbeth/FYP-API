@@ -37,7 +37,7 @@ class ProviderInterface {
 
 
    private function getSolutions($key) {
-     $solutions = queryAll("SELECT * FROM Solutions WHERE provider=$key");
+     $solutions = queryAll("SELECT * FROM Solutions WHERE provider='$key';");
      foreach ($solutions as $key => $value) {
        $solutions[$key]['data'] = json_decode($value['data'],true);
      }

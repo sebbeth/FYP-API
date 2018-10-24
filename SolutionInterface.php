@@ -51,13 +51,26 @@ class SolutionInterface {
       return;
     }
 
-     http_response_code(200);
-     $input = json_encode($input);
-     query("INSERT INTO Solutions ( provider, account_id, data ) VALUES ('0', '$accountId', '$input');");
+    http_response_code(200);
+    if (isset($input['id'])) { // If this is set, we are updating a row not inserting a new one
+      $id = $input['id'];
+      unset($input['id']); // Pop the ID from the input as we don't want to save this in the JSON.
 
-     $output = [
-       'id' => getLatestInsert()
-     ];
+      $input = json_encode($input);
+      query("UPDATE Solutions SET data='$input'  WHERE id='$id';");
+
+      $output = [
+        'id' => intval($id)
+      ];
+    } else {
+      $input = json_encode($input);
+      query("INSERT INTO Solutions ( provider, account_id, data ) VALUES ('0', '$accountId', '$input');");
+
+      $output = [
+        'id' => getLatestInsert()
+      ];
+    }
+
      echo json_encode($output);
      return;
    }
@@ -88,7 +101,7 @@ class SolutionInterface {
      http_response_code(200);
        // return the data column with the ID column added to it
     $data = json_decode($query['data'],true);
-    $data['id'] = $query['id'];
+    $data['id'] = intval($query['id']);
     echo json_encode($data);
     return;
    }
@@ -106,7 +119,7 @@ class SolutionInterface {
      foreach ($query as $solution) {
        // return the data column with the ID column added to it
        $data = json_decode($solution['data'],true);
-       $data['id'] = $solution['id'];
+       $data['id'] = intval($solution['id']);
        echo json_encode($data);
        if (--$count > 0) {
          echo ','; // For every row except the last, add a comma between rows.

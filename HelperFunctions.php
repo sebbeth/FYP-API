@@ -33,7 +33,7 @@ function queryAll( $query ) {
 
 function getLatestInsert() {
   global $dbConnection;
-  return mysqli_insert_id($dbConnection);
+  return intval(mysqli_insert_id($dbConnection));
 }
 
 /*
