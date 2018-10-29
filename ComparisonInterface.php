@@ -78,14 +78,20 @@ function getResult($key) {
     // Data is stored as a string, parse it into an object
     $data = json_decode($results['data'],true);
     foreach ($data as $key => $value) {
-      $data[$key]['title'] = $this->getTitleOfSolution($data[$key]['solution']); // Set the title for the solution
+      //$data[$key]['title'] = $this->getTitleOfSolution($data[$key]['solution']); // Set the title for the solution
       $data[$key]['provider'] = $this->getProvidersFromSolutions([$data[$key]['solution']])[0]; // Get the provider for the solution
+    }
+
+    $input_descriptions = [];
+    foreach ($inputs as $key => $value) {
+      $input_descriptions[] = $this->getDescriptionForInputData($value);
     }
 
     // Make an array with the data to be sent, then convert it to JSON.
     $output = [
       'timestamp' => $results['timestamp'],
       'inputs' => $inputs,
+      'input_descriptions' => $input_descriptions,
       'solutions' => $solutions,
       'providers' => $providers,
       'status' => $results['status'],
@@ -120,8 +126,9 @@ function getResult($key) {
         $data[$key]['provider'] = $this->getProvidersFromSolutions([$data[$data_key]['solution']])[0]; // Get the provider for the solution
       }
 
-      //   $data = json_decode($value['data'],true);   // Data is stored as a string, parse it into a JSON array of objects
+      // TODO add input_descriptions to this output
 
+      
       echo  '{ "id":"' . $value['id'] . '",' .
         '"status":"' . $value['status'] . '",' .
         '"inputs":' . $inputs . ',' .
@@ -159,6 +166,14 @@ function getResult($key) {
       $result = query("SELECT title FROM Solutions WHERE id='$solutionId' LIMIT 1");
       if (isset($result)) {
         return $result['title'];
+      }
+      return null;
+    }
+
+    private function getDescriptionForInputData($inputId) {
+      $result = query("SELECT description FROM InputData WHERE id='$inputId' LIMIT 1");
+      if (isset($result)) {
+        return $result['description'];
       }
       return null;
     }

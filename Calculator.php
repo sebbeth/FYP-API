@@ -40,75 +40,123 @@ class Calculator {
     }
     // Drop the Job from the job queue.
     if ($save) {
-    //    query("DELETE FROM JobQueue WHERE id='{$job['id']}'");
+      //    query("DELETE FROM JobQueue WHERE id='{$job['id']}'");
     }
 
     // Now check if there are any other tasks to complete
     $jobs = queryAll("SELECT id FROM JobQueue");
     if (sizeof($jobs) != 0) { // If there are, consume them too.
-    //  $this->consumeJob();
+      //  $this->consumeJob();
     }
   }
 
   /*
-    compute
+  compute
 
-    This is where the cost analysis is performed
+  This is where the cost analysis is performed
   */
   function compute($job,$comparison) {
     global $dbConnection;
-    //    debug($job);
-    $totalCost = 0;
-    // Put the job parameters in an associative array.
-    $parameters = json_decode($job['parameters'],true);
-    debug('Parameters:');
-    //  debug($parameters);
-
-    $inputDataSets = [];
-    foreach (explode(",",$comparison['inputs']) as $inputId ) { // Construct an array of all the input sets being used for this comparison
-      $set = query("SELECT * FROM InputData WHERE id='$inputId' LIMIT 1");
-      if ($set != null) { $inputDataSets[] = $set; }
-    }
-    debug("--Input--");
-    //debug($inputDataSets);
 
     $results = [];
-    debug("--Solutions--");
 
-    // Iterate through each solution, calculating pricing information for each.
+
+
+    // Get each solution being examined
     foreach (explode(",",$comparison['solutions']) as $solutionIndex => $solutionId ) {
-      $solutionId = intval($solutionId);
-      $solution = query("SELECT * FROM Solutions WHERE id='$solutionId' LIMIT 1");
-      if (!isset($solutionId)) {
-        break;
+
+
+
+      $solution = query("SELECT * FROM Solutions WHERE id='$solutionId' LIMIT 1;");
+
+      if ( sizeof($solution) > 0 ) {
+
+
+        // Do some normalisation here
+        debug('solution');
+        debug($solution);
+        $solution_data = json_decode($solution['data'],true);
+
+        $segments = [];
+
+        //Now get each of the input sets
+
+        foreach (explode(",",$comparison['inputs']) as $inputIndex => $inputId) {
+
+          $inputSet = query("SELECT * FROM InputData WHERE id='$inputId' LIMIT 1;");
+          if ( sizeof($inputSet) > 0 ) {
+
+            $logs = json_decode($inputSet['data'],true);
+
+            $segmentsRemaining = count($logs);
+            for ($i=0; $i < $segmentsRemaining; $i++) {
+              $segment = 0;
+              if (sizeof($solution_data['setup_costs']) > 0) {// Add setup costs to the 0th segment
+                if ($i == 0) {
+                  foreach ($solution_data['setup_costs'] as $setup_cost) { // Add each setup cost to the segment
+                    $segment = $segment + doubleval($setup_cost['cost']);
+                  }
+                }
+              }
+
+              // Go through the usage costs adding them to the segment
+
+              if (sizeof($solution_data['usage_costs']) > 0) {
+
+                foreach ($solution_data['usage_costs'] as $cost) {
+
+                  if ((isset($cost['type'])) && (isset($cost['value'])) ) {
+
+                    switch ($cost['type']) {
+                      case 'C':
+                      $segment = $segment + doubleval($cost['value']);
+                      break;
+                      case 'M':
+                      $segment = $segment + doubleval($cost['value']);
+                      break;
+                      case 'D':
+                      $segment = $segment + doubleval($cost['value']);
+                      break;
+                      case 'S':
+                      $segment = $segment + doubleval($cost['value']);
+                      break;
+                      case 'any':
+                      $segment = $segment + doubleval($cost['value']);
+                      break;
+                      default:
+                      break;
+                    }
+                  }
+                }
+              }
+
+
+              // Add the previous segment to this one so that we get a total
+              if ($i != 0) {
+                $segment = $segment + $segments[$i-1];
+              }
+              // Round to remove floating point errors
+              $segment = round($segment,2);
+
+              array_push($segments,$segment);
+            }
+          }
+        }
+
+
+
+
+        array_push($results,[
+          "total_cost" => end($segments),
+          "title" => $solution_data['title'],
+          "solution" => intval($solutionId),
+          "segments" => $segments
+        ]);
+        debug(end($segments));
+
       }
-      debug($solution);
-
-      // TODO put this in a foreach
-      debug("--test--");
-      $inputData = json_decode($inputDataSets[0]['data'],true);
-
-      $totalCostForSegment = [];
-      // Iterate through every hour calculating the total cost of that segment
-      $segmentsRemaining = count($inputData);//$parameters['run_time_hours'];
-      debug($segmentsRemaining);
-      // Every hour, add the cost of running the workload
-      for ($i=0; $i < $segmentsRemaining; $i++) {
-        $initialCost = 0;
-        if ($i == 0) { $initialCost = 5.0; } // Add the initial costs
-        $previousTotalCost = 0;
-        if ($i > 0) {$previousTotalCost = $totalCostArray[$i-1]; }
-
-        // Tally up all the costs for this comparison
-        $totalCostArray[$i] = $initialCost + $previousTotalCost + doubleval(0.01);
-      }
-      // Now let's colate the output
-      $results[$solutionIndex]['total_cost'] = end($totalCostArray);
-      $results[$solutionIndex]['solution'] = $solutionId;
-      $results[$solutionIndex]['segments'] = $totalCostArray;
     }
 
-    debug(json_encode($results));
     return $dbConnection->real_escape_string(json_encode($results));
   }
 
