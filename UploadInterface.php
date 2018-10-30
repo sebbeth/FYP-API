@@ -40,7 +40,6 @@ class UploadInterface {
     $start_date = '';
     $spec = '';
     $data = '';
-
     if (array_key_exists('description',$input)) {
         $description = $input['description'];
       }
@@ -53,9 +52,13 @@ class UploadInterface {
         return;
       }
 
+      $spec = json_encode($input['spec']);
+      $data = json_encode($input['data']);
+
      if (isset($accountId)) {
        query("INSERT INTO InputData ( account_id, description, start_date, spec, data) VALUES ('$accountId', '$description', '$start_date', '$spec', '$data');");
      } else {
+       echo 'no auth';
        query("INSERT INTO InputData (data) VALUES ('$data');");
      }
 

@@ -74,12 +74,57 @@ function getResult($key) {
     $solutions = array_map('intval', explode(",", $results['solutions']));
     $inputs = array_map('intval', explode(",", $results['inputs']));
     $providers =  $this->getProvidersFromSolutions($solutions);
-
+    $display_mode = 'hourly';
     // Data is stored as a string, parse it into an object
     $data = json_decode($results['data'],true);
+
+
+    $start_date = '';
+
+
     foreach ($data as $key => $value) {
+      $start_date = $value['start_date'];
       //$data[$key]['title'] = $this->getTitleOfSolution($data[$key]['solution']); // Set the title for the solution
       $data[$key]['provider'] = $this->getProvidersFromSolutions([$data[$key]['solution']])[0]; // Get the provider for the solution
+    }
+
+    // add the times array
+    $time = [];
+    $i = 0;
+    foreach ($data[0]['segments'] as $segment) {
+  //    strtotime($start_date);
+    $time[] = strtotime($start_date . " +$i hour");
+      $i++;
+    }
+
+
+    // Now prune the time and data arrays if they are too long.
+
+    if (sizeof($time) > 24 * 7) {
+      $display_mode = 'daily';
+      $prune = 24;
+      if (sizeof($time) > 24 * 7 * 5) { // If there are more then 5 weeks of data, prune to weekly data points
+        $prune = 24 * 7;
+        $display_mode = 'weekly';
+      }
+
+      foreach ($data as $key => $value) {
+        $newSegments = [];
+        foreach ($value['segments'] as $segmentKey => $segmentValue) {
+          if($segmentKey % $prune == 0){
+            $newSegments[] = $segmentValue;
+          }
+        }
+        $data[$key]['segments'] = $newSegments;
+      }
+      $newTime = [];
+      foreach ($time as $key => $value) {
+        if($key % $prune == 0){
+          $newTime[] = $value;
+        }
+      }
+      $time = $newTime;
+
     }
 
     $input_descriptions = [];
@@ -90,11 +135,14 @@ function getResult($key) {
     // Make an array with the data to be sent, then convert it to JSON.
     $output = [
       'timestamp' => $results['timestamp'],
+      'start_date' => $start_date,
       'inputs' => $inputs,
       'input_descriptions' => $input_descriptions,
       'solutions' => $solutions,
       'providers' => $providers,
       'status' => $results['status'],
+      'output_mode' => $display_mode,
+      'time' => $time,
       'data' => $data];
       echo json_encode($output);
     }
@@ -128,7 +176,7 @@ function getResult($key) {
 
       // TODO add input_descriptions to this output
 
-      
+
       echo  '{ "id":"' . $value['id'] . '",' .
         '"status":"' . $value['status'] . '",' .
         '"inputs":' . $inputs . ',' .

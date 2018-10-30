@@ -40,13 +40,13 @@ class Calculator {
     }
     // Drop the Job from the job queue.
     if ($save) {
-      //    query("DELETE FROM JobQueue WHERE id='{$job['id']}'");
+     query("DELETE FROM JobQueue WHERE id='{$job['id']}'");
     }
 
     // Now check if there are any other tasks to complete
     $jobs = queryAll("SELECT id FROM JobQueue");
     if (sizeof($jobs) != 0) { // If there are, consume them too.
-      //  $this->consumeJob();
+        $this->consumeJob();
     }
   }
 
@@ -73,17 +73,25 @@ class Calculator {
 
 
         // Do some normalisation here
-        debug('solution');
-        debug($solution);
-        $solution_data = json_decode($solution['data'],true);
+        $normalisedSolution = new NormalisedSolution($solution);
+        debug($normalisedSolution->getTitle());
+        debug($normalisedSolution->getSpec());
+
+
 
         $segments = [];
+        $wastedResources = 0;
 
         //Now get each of the input sets
+        $start_date = '';
 
         foreach (explode(",",$comparison['inputs']) as $inputIndex => $inputId) {
 
+          $segmentForThisInputSet = [];
+
           $inputSet = query("SELECT * FROM InputData WHERE id='$inputId' LIMIT 1;");
+          // Get the start date for this set
+          $start_date = $inputSet['start_date'];
           if ( sizeof($inputSet) > 0 ) {
 
             $logs = json_decode($inputSet['data'],true);
@@ -91,65 +99,91 @@ class Calculator {
             $segmentsRemaining = count($logs);
             for ($i=0; $i < $segmentsRemaining; $i++) {
               $segment = 0;
-              if (sizeof($solution_data['setup_costs']) > 0) {// Add setup costs to the 0th segment
+              if ($normalisedSolution->hasSetupCosts()) {// Add setup costs to the 0th segment
                 if ($i == 0) {
-                  foreach ($solution_data['setup_costs'] as $setup_cost) { // Add each setup cost to the segment
+                  foreach ($normalisedSolution->getSetupCosts() as $setup_cost) { // Add each setup cost to the segment
                     $segment = $segment + doubleval($setup_cost['cost']);
                   }
                 }
               }
 
+              $cpu_utilisation = 0;
+              $mem_utilisation = 0;
+              $disk_utilisation = 0;
+              $storage_utilisation = 0;
               // Go through the usage costs adding them to the segment
-
-              if (sizeof($solution_data['usage_costs']) > 0) {
-
-                foreach ($solution_data['usage_costs'] as $cost) {
-
-                  if ((isset($cost['type'])) && (isset($cost['value'])) ) {
-
-                    switch ($cost['type']) {
+                foreach ($logs[$i] as $usageType => $usageValue) {
+                      switch ($usageType) {
                       case 'C':
-                      $segment = $segment + doubleval($cost['value']);
+                      //TODO
                       break;
                       case 'M':
-                      $segment = $segment + doubleval($cost['value']);
+                        $mem_utilisation = doubleval($usageValue) / $normalisedSolution->getSpec()['M'];
+                        $segment = $segment + doubleval($normalisedSolution->getUsageCosts()['M']) * $mem_utilisation;
+                        $wastedResources = $wastedResources + doubleval($normalisedSolution->getUsageCosts()['M']) * (1 - $mem_utilisation);
                       break;
                       case 'D':
-                      $segment = $segment + doubleval($cost['value']);
+                        $disk_utilisation = doubleval($usageValue) / $normalisedSolution->getSpec()['D'];
+                        $segment = $segment + doubleval($normalisedSolution->getUsageCosts()['D']) * $disk_utilisation;
+                        $wastedResources = $wastedResources + doubleval($normalisedSolution->getUsageCosts()['D']) * (1 - $disk_utilisation);
+
                       break;
                       case 'S':
-                      $segment = $segment + doubleval($cost['value']);
+                        $storage_utilisation = doubleval($usageValue) / $normalisedSolution->getSpec()['S'];
+                        $segment = $segment + doubleval($normalisedSolution->getUsageCosts()['S']) * $storage_utilisation;
+                        $wastedResources = $wastedResources + doubleval($normalisedSolution->getUsageCosts()['S']) * (1 - $storage_utilisation);
                       break;
                       case 'any':
-                      $segment = $segment + doubleval($cost['value']);
                       break;
                       default:
+                        // Add the default cost
+                        $segment = $segment + doubleval($normalisedSolution->getUsageCosts()['any']);
                       break;
                     }
-                  }
                 }
-              }
+                // store the utilisation for later analysis
+                $normalisedSolution->pushUtilisation($cpu_utilisation,$mem_utilisation,$disk_utilisation,$storage_utilisation);
+
 
 
               // Add the previous segment to this one so that we get a total
               if ($i != 0) {
-                $segment = $segment + $segments[$i-1];
+                $segment = $segment + $segmentForThisInputSet[$i-1];
               }
-              // Round to remove floating point errors
-              $segment = round($segment,2);
 
-              array_push($segments,$segment);
+              array_push($segmentForThisInputSet,$segment);
+            }
+          }
+          // Now concatonate each $segmentForThisInputSet into $segments
+          foreach ($segmentForThisInputSet as $key => $value) {
+            if ($key > sizeof($segments)) { // We've overshot the end of the array, so start pushing to it`
+              array_push($segments,$value);
+            } else {
+              $segments[$key] = $segments[$key] + $value;  // Add this element to the exiting elements in $segments
             }
           }
         }
 
 
+        // Round to remove floating point errors
 
+        foreach ($segments as $key => $value) {
+          $segments[$key] = round($value,2);
+        }
+
+        debug($normalisedSolution->getUtilisation());
+        $averageUtilistaion = $normalisedSolution->getAverageUtilisation();
 
         array_push($results,[
           "total_cost" => end($segments),
-          "title" => $solution_data['title'],
-          "solution" => intval($solutionId),
+          "start_date" => $start_date,
+          "title" => $normalisedSolution->getTitle(),
+          "solution" => $normalisedSolution->getID(),
+          "utilisation_cpu" => $averageUtilistaion['C'],
+          "utilisation_memory" => $averageUtilistaion['M'],
+          "utilisation_io" => $averageUtilistaion['D'],
+          "utilisation_storage" => $averageUtilistaion['S'],
+          "wasteCost" => $wastedResources,
           "segments" => $segments
         ]);
         debug(end($segments));
