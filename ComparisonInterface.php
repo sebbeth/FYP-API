@@ -92,8 +92,8 @@ function getResult($key) {
     $time = [];
     $i = 0;
     foreach ($data[0]['segments'] as $segment) {
-  //    strtotime($start_date);
-    $time[] = strtotime($start_date . " +$i hour");
+      //    strtotime($start_date);
+      $time[] = strtotime($start_date . " +$i hour");
       $i++;
     }
 
@@ -117,6 +117,12 @@ function getResult($key) {
         }
         $data[$key]['segments'] = $newSegments;
       }
+
+      // Sort $data by total cost
+      usort($data, function($a, $b) {
+        return doubleval($a['total_cost']) > doubleval($b['total_cost']);
+      });
+
       $newTime = [];
       foreach ($time as $key => $value) {
         if($key % $prune == 0){
@@ -182,8 +188,7 @@ function getResult($key) {
         '"inputs":' . $inputs . ',' .
         '"solutions":' . $solutions . ',' .
         '"providers":' . $providers . ',' .
-        '"timestamp":"' . $value['timestamp'] .
-        '", "data":' . json_encode($data) . '}'; // Now turn $data back into a JSON string
+        '"timestamp":"' . $value['timestamp'] . '"' . '}'; // Now turn $data back into a JSON string
         if (--$count > 0) {
           echo ','; // For every row except the last, add a comma between rows.
         }
@@ -225,6 +230,7 @@ function getResult($key) {
       }
       return null;
     }
+
 
 
   }
