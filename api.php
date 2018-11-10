@@ -221,6 +221,7 @@ try {
           $accountInterface->getAccount();
           return;
         }
+        return;
       }
       if ( ($method == 'POST') && (isset($input)) ) {
         $accountInterface->createAccount($input);

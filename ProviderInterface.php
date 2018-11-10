@@ -14,6 +14,10 @@ class ProviderInterface {
      $output = '';
      $provider = queryAll("SELECT * FROM Providers WHERE id=$key LIMIT 1");
      $provider['solutions'] = $this->getSolutions($key); // Add each solution to the provider array
+     if (sizeof($provider['solutions']) == 0) {
+       http_response_code(400);
+       return;
+     }
      $output .=  json_encode($provider);
      echo $output;
      http_response_code(200);
