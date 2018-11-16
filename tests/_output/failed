@@ -1,0 +1,2 @@
+tests/api/UnAuthenticatedRequestCest.php:testGetAccountEndpoint
+tests/api/ValidRequestCest.php:testGetAccountEndpoint

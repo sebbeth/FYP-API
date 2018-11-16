@@ -16,7 +16,6 @@ require_once 'UploadInterface.php';
 require_once 'SolutionInterface.php';
 require_once 'ProviderInterface.php';
 require_once 'AccountInterface.php';
-require_once 'NormalisedSolution.php';
 
 
 header("Access-Control-Allow-Origin: $allowedOrigin");
