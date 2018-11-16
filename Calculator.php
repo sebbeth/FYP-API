@@ -81,6 +81,7 @@ class Calculator {
 
         $segments = [];
         $wastedResources = 0;
+        $underperformance_flags = [];
 
         //Now get each of the input sets
         $start_date = '';
@@ -111,27 +112,80 @@ class Calculator {
               $mem_utilisation = 0;
               $disk_utilisation = 0;
               $storage_utilisation = 0;
+
+
               // Go through the usage costs adding them to the segment
                 foreach ($logs[$i] as $usageType => $usageValue) {
                       switch ($usageType) {
                       case 'C':
-                      //TODO
+                      // TODO
+
+                      if (!isset($normalisedSolution->getSpec()['C'])) {
+                        $cpu_utilisation = 0;
+                        $underperformance_flags['C'] = true;
+                        break;
+                      }
+                      $cpu_capacity = 100.0;
+                      $cpu_utilisation = doubleval($usageValue) / $cpu_capacity;
+                      if (doubleval($usageValue) > $cpu_capacity) {  // If we are overusing the resource
+                        $underperformance_flags['C'] = true;
+                        $segment = $segment + $cpu_capacity; // add cost of 100% utilisation
+                        break;
+                      }
+                      $segment = $segment + doubleval($normalisedSolution->getUsageCosts()['C']) * $cpu_utilisation;
+                      $wastedResources = $wastedResources + doubleval($normalisedSolution->getUsageCosts()['C']) * (1 - $cpu_utilisation);
+
+
+
                       break;
                       case 'M':
-                        $mem_utilisation = doubleval($usageValue) / $normalisedSolution->getSpec()['M'];
-                        $segment = $segment + doubleval($normalisedSolution->getUsageCosts()['M']) * $mem_utilisation;
-                        $wastedResources = $wastedResources + doubleval($normalisedSolution->getUsageCosts()['M']) * (1 - $mem_utilisation);
+                      if ($normalisedSolution->getSpec()['M'] == 0) {
+                        $mem_utilisation = 0;
+                        $underperformance_flags['M'] = true;
+                        break;
+                      }
+                      $mem_utilisation = doubleval($usageValue) / $normalisedSolution->getSpec()['M'];
+                      if (doubleval($usageValue) > $normalisedSolution->getSpec()['M']) {  // If we are overusing the resource
+                        $underperformance_flags['M'] = true;
+                        $segment = $segment + doubleval($normalisedSolution->getUsageCosts()['M']); // add cost of 100% utilisation
+                        break;
+                      }
+                      $segment = $segment + doubleval($normalisedSolution->getUsageCosts()['M']) * $mem_utilisation;
+                      $wastedResources = $wastedResources + doubleval($normalisedSolution->getUsageCosts()['M']) * (1 - $mem_utilisation);
+
                       break;
                       case 'D':
-                        $disk_utilisation = doubleval($usageValue) / $normalisedSolution->getSpec()['D'];
-                        $segment = $segment + doubleval($normalisedSolution->getUsageCosts()['D']) * $disk_utilisation;
-                        $wastedResources = $wastedResources + doubleval($normalisedSolution->getUsageCosts()['D']) * (1 - $disk_utilisation);
+                      if ($normalisedSolution->getSpec()['D'] == 0) {
+                        $disk_utilisation = 0;
+                        $underperformance_flags['D'] = true;
+                        break;
+                      }
+                      $disk_utilisation = doubleval($usageValue) / $normalisedSolution->getSpec()['D'];
+                      if (doubleval($usageValue) > $normalisedSolution->getSpec()['D']) {  // If we are overusing the resource
+                        $underperformance_flags['D'] = true;
+                        $segment = $segment + doubleval($normalisedSolution->getUsageCosts()['D']); // add cost of 100% utilisation
+                        break;
+                      }
+                      $segment = $segment + doubleval($normalisedSolution->getUsageCosts()['D']) * $disk_utilisation;
+                      $wastedResources = $wastedResources + doubleval($normalisedSolution->getUsageCosts()['D']) * (1 - $disk_utilisation);
 
                       break;
                       case 'S':
+                        if ($normalisedSolution->getSpec()['S'] == 0) {
+                          $storage_utilisation = 0;
+                          $underperformance_flags['S'] = true;
+                          break;
+                        }
                         $storage_utilisation = doubleval($usageValue) / $normalisedSolution->getSpec()['S'];
+                        if (doubleval($usageValue) > $normalisedSolution->getSpec()['S']) {  // If we are overusing the resource
+                          $underperformance_flags['S'] = true;
+                          $segment = $segment + doubleval($normalisedSolution->getUsageCosts()['S']); // add cost of 100% utilisation
+                          break;
+                        }
                         $segment = $segment + doubleval($normalisedSolution->getUsageCosts()['S']) * $storage_utilisation;
                         $wastedResources = $wastedResources + doubleval($normalisedSolution->getUsageCosts()['S']) * (1 - $storage_utilisation);
+
+
                       break;
                       case 'any':
                       break;
@@ -174,7 +228,7 @@ class Calculator {
         debug($normalisedSolution->getUtilisation());
         $averageUtilistaion = $normalisedSolution->getAverageUtilisation();
 
-        array_push($results,[
+        $toStore = [
           "total_cost" => end($segments),
           "start_date" => $start_date,
           "title" => $normalisedSolution->getTitle(),
@@ -185,7 +239,13 @@ class Calculator {
           "utilisation_storage" => $averageUtilistaion['S'],
           "wasteCost" => $wastedResources,
           "segments" => $segments
-        ]);
+        ];
+
+        if (!empty($underperformance_flags)) {
+          $toStore['underperforming'] = 'true';
+        }
+
+        array_push($results,$toStore);
         debug(end($segments));
 
       }
