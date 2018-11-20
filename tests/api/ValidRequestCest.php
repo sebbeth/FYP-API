@@ -290,7 +290,7 @@ class ValidRequestCest
 
   public function testSingleSolutionEndpoint(ApiTester $I)
   {
-    $I->sendGET('/solution/11');
+    $I->sendGET('/solution/65');
     $I->seeResponseCodeIs(200);
     $I->seeResponseIsJson();
     $response = $I->grabResponse();

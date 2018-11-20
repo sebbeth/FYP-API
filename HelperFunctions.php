@@ -24,7 +24,7 @@ function queryAll( $query ) {
 
     $output = array();
     $result = $dbConnection->query($query);
-    for ($i = 0; $i < $result->num_rows; $i++ ) { // What! A for loop in PHP?! ;)
+    for ($i = 0; $i < $result->num_rows; $i++ ) { 
       array_push($output,$result->fetch_assoc());
     }
 

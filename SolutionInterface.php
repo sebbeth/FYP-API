@@ -148,17 +148,6 @@ class SolutionInterface {
      return;
    }
 
-   function getSolutionsForProvider($providerId) {
-     header('Content-Type: application/json');
-     http_response_code(200);
-
-   }
-
-
-   function getPublicSolution($key) {
-     header('Content-Type: application/json');
-     http_response_code(200);
-   }
 
  }
 
