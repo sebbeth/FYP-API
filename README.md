@@ -10,5 +10,5 @@ Run `composer install` to set up the project.
 
 Automated tests can be run using the `./RunTest.sh` command.
 
-author @sebbeth
+author: Sebastian Brown
 email: c3220619@uon.edu.au
